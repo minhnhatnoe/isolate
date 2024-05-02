@@ -32,7 +32,7 @@ The fastest way to start is grabbing the pre-built docker image at `ghcr.io/minh
 
 #### Standalone
 
-Run the container with the `--privileged` flag to start the daemon. Make sure you mount appropriate directories to the default mount points at `/bin`, `/lib` and `/usr` (and probably another directory for putting programs to be run by `isolate`).
+Run the container with the `--privileged` flag to start the daemon. Make sure you mount appropriate directories to the default mount points at `/bin`, `/lib` and `/usr` (and probably `/var/local/lib/isolate/` to put executable in the sandbox).
 
 Use `docker exec` to trigger `isolate` runs (refer to the man page for additional details). A good starting point would be `isolate --cg --init && isolate --cg --run -- <program> && isolate --cg --cleanup`.
 
