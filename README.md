@@ -28,9 +28,15 @@ is available online.
 
 ### Docker image
 
-The fastest way to start is grabbing the pre-built docker image at `ghcr.io/minhnhatnoe/isolate:latest`, which can be used as a standalone image or a base image. The image includes:
+The fastest way to start is grabbing the pre-built docker image at `ghcr.io/minhnhatnoe/isolate:latest`, which can be used as a standalone image or a base image.
 
-- `isolate-cg-keeper`: Establish the Control Group subtree for running processes and future sandboxes. This should be started before running any `isolate` and `isolate-check-environment` commands. If `isolate-cg-keeper` is not the sole process at the root Control Group, execute this binary with `--move-cg-neighbors` to not violate [Control Group v2's No Internal Process Constraint](https://docs.kernel.org/admin-guide/cgroup-v2.html#no-internal-process-constraint).
+#### Standalone
+
+Run the container with the `--privileged` flag to start the daemon. Make sure you mount appropriate directories to the default mount points at `/bin`, `/lib` and `/usr` (and probably another directory for putting programs to be run by `isolate`).
+
+Use `docker exec` to trigger `isolate` runs (refer to the man page for additional details). A good starting point would be `isolate --cg --init && isolate --cg --run -- <program> && isolate --cg --cleanup`.
+
+### From source
 
 To compile Isolate, you need:
 
@@ -43,3 +49,9 @@ But if you only want the isolate binary, you can just run `make isolate`
 
 Recommended system setup is described in sections INSTALLATION and REPRODUCIBILITY
 of the manual page.
+
+### Anatomy of isolate
+
+- `isolate-cg-keeper`: Establish the Control Group subtree for running processes and future sandboxes. Should be started before running any `isolate` and `isolate-check-environment` commands. If `isolate-cg-keeper` is not the sole process at its designated Control Group, execute with `--move-cg-neighbors` to avoid violating [Control Group v2's No Internal Process Constraint](https://docs.kernel.org/admin-guide/cgroup-v2.html#no-internal-process-constraint).
+- `isolate-check-environment`: Check current environment for sources of run-time variability and other issues. Should be run after starting `isolate-cg-keeper`. To apply recommended fixes, run with `--execute`.
+- `isolate`: The sandbox trigger. Refer to the man page for guidance.
