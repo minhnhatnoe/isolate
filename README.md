@@ -1,5 +1,4 @@
-isolate
-=======
+# isolate
 
 Isolate is a sandbox built to safely run untrusted executables, like
 programs submitted by competitors in a programming contest. Isolate
@@ -25,14 +24,19 @@ in the Olympiads in Informatics journal.
 Also, Isolate's [manual page](http://www.ucw.cz/moe/isolate.1.html)
 is available online.
 
+## Quick start
+
+### Docker image
+
+The fastest way to start is grabbing the pre-built docker image at `ghcr.io/minhnhatnoe/isolate:latest`, which can be used as a standalone image or a base image. The image includes:
+
+- `isolate-cg-keeper`: Establish the Control Group subtree for running processes and future sandboxes. This should be started before running any `isolate` and `isolate-check-environment` commands. If `isolate-cg-keeper` is not the sole process at the root Control Group, execute this binary with `--move-cg-neighbors` to not violate [Control Group v2's No Internal Process Constraint](https://docs.kernel.org/admin-guide/cgroup-v2.html#no-internal-process-constraint).
+
 To compile Isolate, you need:
 
-  - pkg-config
-
-  - headers for the libcap library (usually available in a libcap-dev package)
-
-  - headers for the libsystemd library (libsystemd-dev package) for compilation
-    of isolate-cg-keeper
+- pkg-config
+- headers for the libcap library (usually available in a libcap-dev package)
+- headers for the libsystemd library (libsystemd-dev package) for compilation of isolate-cg-keeper
 
 You may need `a2x` (found in [AsciiDoc](https://asciidoc-py.github.io/a2x.1.html)) for building manual.
 But if you only want the isolate binary, you can just run `make isolate`
