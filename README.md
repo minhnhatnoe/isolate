@@ -36,7 +36,13 @@ Run the container with the `--privileged` flag to start the daemon. Make sure yo
 
 Use `docker exec` to trigger `isolate` runs (refer to the man page for additional details). A good starting point would be `isolate --cg --init && isolate --cg --run -- <program> && isolate --cg --cleanup`.
 
+#### Base image
+
+In your resulting image, install libcap (usually available as `libcap` and/or `libcap-dev`) and run the daemon with either `isolate-cg-keeper --move-cg-neighbors` or `start_isolate` (note that both will be blocking).
+
 ### From source
+
+#### Installation
 
 To compile Isolate, you need:
 
@@ -48,7 +54,11 @@ You may need `a2x` (found in [AsciiDoc](https://asciidoc-py.github.io/a2x.1.html
 But if you only want the isolate binary, you can just run `make isolate`
 
 Recommended system setup is described in sections INSTALLATION and REPRODUCIBILITY
-of the manual page.
+of the manual page. To install the systemd unit, run `make install-systemd-units`.
+
+#### Usage
+
+If your system is using systemd, run the installed unit (usually with `systemctl enable isolate --now`) and you're ready to use `isolate`.
 
 ### Anatomy of isolate
 
