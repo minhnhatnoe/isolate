@@ -34,7 +34,7 @@ print() {
     fi
 }
 
-if [ ! -w /sys/fs/cgroup ]; then
+if ! mount -t cgroup2 | grep -E "\(rw\)|\(rw,|,rw\)|,rw,"; then
     print "/sys/fs/cgroup read-only. Remounting as read-write."
     mount -o remount,rw /sys/fs/cgroup/
 fi
