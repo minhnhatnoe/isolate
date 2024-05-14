@@ -113,18 +113,23 @@ move_cg_threadgroups(char *src, char *dest)
 }
 
 static void
-setup_cg(bool move_cg_neighbors)
+setup_cg(bool move_cg_neighbors, bool make_cg_subgroup)
 {
-  char *cg = cf_cg_root;
-  if (strlen(cf_cg_root) > 5 && !memcmp(cf_cg_root, "auto:", 5))
+  char *cg = get_my_cgroup();
+  struct stat st;
+  if (stat(cg, &st) != 0)
+    die("Control group root %s does not exist: %m", cg);
+
+  if (make_cg_subgroup)
     {
-      cg = get_my_cgroup();
-      write_auto_cgroup(cf_cg_root + 5, cg);
+      char *subgroup_isolate = xsprintf("%s/isolate.slice", cg);
+      free(cg);
+      cg = subgroup_isolate;
+      if (mkdir(subgroup_isolate, 0777) < 0)
+        die("Cannot create subgroup %s: %m", subgroup_isolate);
     }
 
-  struct stat st;
-  if (stat(cg, &st), 0)
-    die("Control group root %s does not exist: %m", cg);
+  write_auto_cgroup(cf_cg_root + 5, cg);
 
   char subgroup[1024];
   snprintf(subgroup, sizeof(subgroup), "%s/daemon", cg);
@@ -135,24 +140,23 @@ setup_cg(bool move_cg_neighbors)
   if (move_cg_neighbors)
     move_cg_threadgroups(cg, subgroup);
   write_cg_attr(cg, "cgroup.subtree_control", "+cpuset +memory\n");
+  free(cg);
 }
 
 int
 main(int argc, char **argv)
 {
-  bool move_cg_neighbors = false;
-  if (argc == 2){
-    if (!strcmp(argv[1], "--move-cg-neighbors") && !strcmp(argv[1], "-m")){
-      die("Usage: %s [--move-cg-neighbors|-m]", argv[0]);
-    }
-    move_cg_neighbors = true;
-  }
-  else if (argc > 2){
-    die("Usage: %s [--move-cg-neighbors|-m]", argv[0]);
-  }
+  bool move_cg_neighbors = false, make_cg_subgroup = false;
+  for (int i = 1; i < argc; i++)
+    if (!strcmp(argv[i], "--move-cg-neighbors") || !strcmp(argv[i], "-m"))
+      move_cg_neighbors = true;
+    else if (!strcmp(argv[i], "--make-cg-subgroup") || !strcmp(argv[i], "-s"))
+      make_cg_subgroup = true;
+    else
+      die("Usage: %s [--move-cg-neighbors|-m] [--make-cg-subgroup|-s]", argv[0]);
 
   cf_parse();
-  setup_cg(move_cg_neighbors);
+  setup_cg(move_cg_neighbors, make_cg_subgroup);
   notify_ready();
   for (;;)
     pause();

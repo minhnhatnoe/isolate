@@ -41,7 +41,7 @@ fi
 
 # Run isolate daemon
 print "Running isolate daemon"
-isolate-cg-keeper --move-cg-neighbors & DAEMON_PID=$!
+isolate-cg-keeper --make-cg-subgroup & DAEMON_PID=$!
 
 if [ $ISOLATE_CHECK_EXECUTE = true ]; then
     print "Running isolate-check-environment --execute --quiet"
