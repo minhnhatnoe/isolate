@@ -40,7 +40,7 @@ if ! mount -t cgroup2 | grep -E "\(rw\)|\(rw,|,rw\)|,rw,"; then
 fi
 
 # Run isolate daemon
-print "Running isolate daemon"
+print "Running isolate daemon. This will move all processes to the /daemon control group."
 isolate-cg-keeper --move-cg-neighbors & DAEMON_PID=$!
 
 if [ $ISOLATE_CHECK_EXECUTE = true ]; then
