@@ -6,7 +6,7 @@ QUIET=true
 ISOLATE_CHECK_EXECUTE=false
 STRICT=false
 
-ARGS=$(getopt -o n:i:s:r:d:p: -l verbose,execute-patches,strict,help -- "$@")
+ARGS=$(getopt -o : -l verbose,execute-patches,strict,help -- "$@")
 eval set -- "$ARGS"
 
 while true; do
