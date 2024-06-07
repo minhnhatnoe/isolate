@@ -5,26 +5,33 @@ set -e
 QUIET=true
 ISOLATE_CHECK_EXECUTE=false
 STRICT=false
-for arg in "$@"; do
-    case $arg in
+
+ARGS=$(getopt -o n:i:s:r:d:p: -l verbose,execute-patches,strict,help -- "$@")
+eval set -- "$ARGS"
+
+while true; do
+    case "$1" in
         --verbose)
             QUIET=false
-            ;;
+            shift ;;
         --execute-patches)
             ISOLATE_CHECK_EXECUTE=true
-            ;;
+            shift ;;
         --strict)
             STRICT=true
-            ;;
+            shift ;;
+        --)
+            shift
+            break ;;
         --help)
             echo "$(basename "$0")"
-            echo "Usage: [--verbose] [--execute-patches] [--help]"
+            echo "Usage: [--verbose] [--execute-patches] [--strict] [--help] [--] <command>"
             echo "  --verbose: Print every thing"
             echo "  --execute-patches: Run isolate-check-environment --execute --quiet. Increases reproducibility."
             echo "  --strict: Fail if isolate-check-environment fails."
+            echo "  -- <command>: Optional command to be excuted."
             echo "  --help: Show this help message"
-            exit 0
-            ;;
+            exit 0 ;;
     esac
 done
 
@@ -58,5 +65,7 @@ if [ $STRICT = true ]; then
 else
     print "Skipping isolate-check-environment"
 fi
+
+exec "$@"
 
 wait $DAEMON_PID
