@@ -1,6 +1,8 @@
 #!/bin/sh
 
-set -e
+set -o errexit
+set -o pipefail
+set -o nounset
 
 QUIET=true
 ISOLATE_CHECK_EXECUTE=false
@@ -66,7 +68,11 @@ else
     print "Skipping isolate-check-environment"
 fi
 
+if [ $# -eq 0 ]; then
+    print "No command to execute. Waiting for isolate-cg-keeper to finish."
+    wait $DAEMON_PID
+    exit 0
+fi
+
 print "Executing $@"
 exec "$@"
-
-wait $DAEMON_PID
