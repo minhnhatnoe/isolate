@@ -6,31 +6,31 @@ QUIET=true
 ISOLATE_CHECK_EXECUTE=false
 STRICT=false
 
-ARGS=$(getopt -o : -l verbose,execute-patches,strict,help -- "$@")
+ARGS=$(getopt -n "$0" -o vesh: -l verbose,execute-patches,strict,help -- "$@")
 eval set -- "$ARGS"
 
 while true; do
     case "$1" in
-        --verbose)
+        -v|--verbose)
             QUIET=false
             shift ;;
-        --execute-patches)
+        -e|--execute-patches)
             ISOLATE_CHECK_EXECUTE=true
             shift ;;
-        --strict)
+        -s|--strict)
             STRICT=true
             shift ;;
         --)
             shift
             break ;;
-        --help)
+        -h|--help)
             echo "$(basename "$0")"
-            echo "Usage: [--verbose] [--execute-patches] [--strict] [--help] [--] <command>"
-            echo "  --verbose: Print every thing"
-            echo "  --execute-patches: Run isolate-check-environment --execute --quiet. Increases reproducibility."
-            echo "  --strict: Fail if isolate-check-environment fails."
-            echo "  -- <command>: Optional command to be excuted."
-            echo "  --help: Show this help message"
+            echo "Usage: [-v|--verbose] [-e|--execute-patches] [-s|--strict] [-h|--help] [--] <command>"
+            echo "  --verbose           Print every thing"
+            echo "  --execute-patches   Run isolate-check-environment --execute --quiet which increases reproducibility"
+            echo "  --strict            Fail if isolate-check-environment fails"
+            echo "  --help              Show this help message and exit"
+            echo "  -- <command>        Optional command to be executed after isolate-cg-keeper is started"
             exit 0 ;;
     esac
 done
