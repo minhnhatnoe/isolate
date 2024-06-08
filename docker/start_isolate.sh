@@ -1,36 +1,44 @@
 #!/bin/sh
 
 set -e
+set -o nounset
 
 QUIET=true
 ISOLATE_CHECK_EXECUTE=false
 STRICT=false
-for arg in "$@"; do
-    case $arg in
-        --verbose)
+
+ARGS=$(getopt -n "$0" -o vesh: -l verbose,execute-patches,strict,help -- "$@")
+eval set -- "$ARGS"
+
+while true; do
+    case "$1" in
+        -v|--verbose)
             QUIET=false
-            ;;
-        --execute-patches)
+            shift ;;
+        -e|--execute-patches)
             ISOLATE_CHECK_EXECUTE=true
-            ;;
-        --strict)
+            shift ;;
+        -s|--strict)
             STRICT=true
-            ;;
-        --help)
+            shift ;;
+        --)
+            shift
+            break ;;
+        -h|--help)
             echo "$(basename "$0")"
-            echo "Usage: [--verbose] [--execute-patches] [--help]"
-            echo "  --verbose: Print every thing"
-            echo "  --execute-patches: Run isolate-check-environment --execute --quiet. Increases reproducibility."
-            echo "  --strict: Fail if isolate-check-environment fails."
-            echo "  --help: Show this help message"
-            exit 0
-            ;;
+            echo "Usage: [-v|--verbose] [-e|--execute-patches] [-s|--strict] [-h|--help] [--] <command>"
+            echo "  --verbose           Print every thing"
+            echo "  --execute-patches   Run isolate-check-environment --execute --quiet which increases reproducibility"
+            echo "  --strict            Fail if isolate-check-environment fails"
+            echo "  --help              Show this help message and exit"
+            echo "  -- <command>        Optional command to be executed after isolate-cg-keeper is started"
+            exit 0 ;;
     esac
 done
 
 print() {
     if [ $QUIET = false ]; then
-        echo "$1"
+        echo "$@"
     fi
 }
 
@@ -59,4 +67,11 @@ else
     print "Skipping isolate-check-environment"
 fi
 
-wait $DAEMON_PID
+if [ $# -eq 0 ]; then
+    print "No command to execute. Waiting for isolate-cg-keeper to finish."
+    wait $DAEMON_PID
+    exit 0
+fi
+
+print "Executing $@"
+exec "$@"
