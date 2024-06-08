@@ -37,7 +37,7 @@ done
 
 print() {
     if [ $QUIET = false ]; then
-        echo "$1"
+        echo "$@"
     fi
 }
 
@@ -66,6 +66,7 @@ else
     print "Skipping isolate-check-environment"
 fi
 
+print "Executing $@"
 exec "$@"
 
 wait $DAEMON_PID
