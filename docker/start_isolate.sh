@@ -1,7 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-set -o errexit
-set -o pipefail
+set -e
 set -o nounset
 
 QUIET=true
